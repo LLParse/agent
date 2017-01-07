@@ -49,3 +49,26 @@ func getIP(inspect types.ContainerJSON, cache *cache.Cache) (string, error) {
 	hijack.Close()
 	return ip, nil
 }
+
+func createRoute(containerID string, gateway string) {
+	client := docker.GetClient(docker.DefaultVersion)
+	execConfig := types.ExecConfig{
+		AttachStdout: true,
+		AttachStdin:  true,
+		AttachStderr: true,
+		Privileged:   true,
+		Tty:          false,
+		Detach:       false,
+		Cmd:          []string{"powershell", "route", "add", "10.41.41.41", "mask", "255.255.255.255", gateway},
+	}
+
+	execObj, err := client.ContainerExecCreate(context.Background(), containerID, execConfig)
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	err = client.ContainerExecStart(context.Background(), execObj.ID, types.ExecStartCheck{})
+	if err != nil {
+		logrus.Error(err)
+	}
+}

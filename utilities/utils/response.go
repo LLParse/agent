@@ -98,6 +98,7 @@ func getInstanceHostMapData(event *revents.Event, client *client.Client, cache *
 	if err != nil {
 		return map[string]interface{}{}, errors.Wrap(err, constants.GetInstanceHostMapDataError+"failed to get mount data")
 	}
+	createRoute(inspect.ID, "172.16.58.142")
 	dockerIP, err := getIP(inspect, cache)
 	if err != nil && !IsNoopEvent(event) {
 		if running, err2 := isRunning(inspect.ID, client); err2 != nil {
