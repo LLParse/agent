@@ -142,6 +142,14 @@ func SetAPIURL(value string) {
 	constants.ConfigOverride["URL"] = value
 }
 
+func SetNetServicesIP(value string) {
+	constants.ConfigOverride["NET_SERVICES_IP"] = value
+}
+
+func NetServicesIP() string {
+	return DefaultValue("NET_SERVICES_IP", "")
+}
+
 func agentIP() string {
 	return DefaultValue("AGENT_IP", "")
 }

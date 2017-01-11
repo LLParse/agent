@@ -146,7 +146,7 @@ func getServicePath() (string, error) {
 	return filepath.Abs(p)
 }
 
-func registerService(url string) error {
+func registerService(url string, netServicesIP string) error {
 	p, err := getServicePath()
 	if err != nil {
 		return err
@@ -164,8 +164,10 @@ func registerService(url string) error {
 	}
 
 	// Configure the service to launch with the arguments that were just passed.
-	args := []string{"-url"}
-	args = append(args, url)
+	args := []string{"-url", url}
+	if netServicesIP != "" {
+		args = append(args, "-net-services-ip", netServicesIP)
+	}
 
 	s, err := m.CreateService(ServiceName, p, c, args...)
 	if err != nil {
@@ -235,7 +237,7 @@ func unregisterService() error {
 	return nil
 }
 
-func initService(register string, unregister bool) error {
+func initService(register string, netServicesIP string, unregister bool) error {
 	if _, err := os.Stat(homeDir); err != nil {
 		err = os.MkdirAll(homeDir, 0755)
 		if err != nil {
@@ -243,7 +245,7 @@ func initService(register string, unregister bool) error {
 		}
 	}
 	if register != "" {
-		err := registerService(register)
+		err := registerService(register, netServicesIP)
 		if err != nil {
 			logrus.Fatalf("Failed to register service, err: %v", err)
 		}
@@ -436,8 +438,8 @@ func NotifyShutdown(err error) {
 	}
 }
 
-func Init(register string, unregister bool) error {
-	if err := initService(register, unregister); err != nil {
+func Init(register string, netServicesIP string, unregister bool) error {
+	if err := initService(register, netServicesIP, unregister); err != nil {
 		return err
 	}
 

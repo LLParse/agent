@@ -10,12 +10,13 @@ import (
 	"time"
 )
 
-func Listen(eventURL, accessKey, secretKey string, workerCount int) error {
+func Listen(eventURL, accessKey, secretKey string, workerCount int, netServicesIP string) error {
 	logrus.Infof("Listening for events on %v", eventURL)
 
 	config.SetAccessKey(accessKey)
 	config.SetSecretKey(secretKey)
 	config.SetAPIURL(eventURL)
+	config.SetNetServicesIP(netServicesIP)
 
 	config.PhysicalHostUUID(true)
 	config.SetDockerUUID()

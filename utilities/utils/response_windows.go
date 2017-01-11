@@ -50,7 +50,12 @@ func getIP(inspect types.ContainerJSON, cache *cache.Cache) (string, error) {
 	return ip, nil
 }
 
-func createRoute(containerID string, gateway string) {
+func setupDNS(containerID string, gateway string) {
+	createAndStart(containerID, []string{"powershell", "route", "ADD", "10.41.41.41", "MASK", "255.255.255.255", gateway})
+	createAndStart(containerID, []string{"powershell", "Get-NetAdapter", "|", "Set-DnsClientServerAddress", "-ServerAddresses", "('10.41.41.41')"})
+}
+
+func createAndStart(containerID string, command []string) {
 	client := docker.GetClient(docker.DefaultVersion)
 	execConfig := types.ExecConfig{
 		AttachStdout: true,
@@ -59,7 +64,7 @@ func createRoute(containerID string, gateway string) {
 		Privileged:   true,
 		Tty:          false,
 		Detach:       false,
-		Cmd:          []string{"powershell", "route", "add", "10.41.41.41", "mask", "255.255.255.255", gateway},
+		Cmd:          command,
 	}
 
 	execObj, err := client.ContainerExecCreate(context.Background(), containerID, execConfig)
@@ -70,5 +75,5 @@ func createRoute(containerID string, gateway string) {
 	err = client.ContainerExecStart(context.Background(), execObj.ID, types.ExecStartCheck{})
 	if err != nil {
 		logrus.Error(err)
-	}
+	}	
 }

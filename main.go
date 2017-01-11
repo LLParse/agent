@@ -19,6 +19,7 @@ func main() {
 	rurl := flag.String("url", "", "registration url")
 	registerService := flag.String("register-service", "", "register rancher-agent service")
 	unregisterService := flag.Bool("unregister-service", false, "unregister rancher-agent service")
+	netServicesIP := flag.String("net-services-ip", "", "IP address of host running network services")
 	flag.Parse()
 	if *version {
 		fmt.Printf("go-agent version %s \n", VERSION)
@@ -32,7 +33,7 @@ func main() {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	if err := register.Init(*registerService, *unregisterService); err != nil {
+	if err := register.Init(*registerService, *netServicesIP, *unregisterService); err != nil {
 		logrus.Fatalf("Failed to Initialize Service err: %v", err)
 	}
 
@@ -52,7 +53,7 @@ func main() {
 	logrus.Info(url, accessKey, secretKey)
 	workerCount := 50
 
-	err := events.Listen(url, accessKey, secretKey, workerCount)
+	err := events.Listen(url, accessKey, secretKey, workerCount, *netServicesIP)
 	if err != nil {
 		logrus.Fatalf("Exiting. Error: %v", err)
 		register.NotifyShutdown(err)
