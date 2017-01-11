@@ -50,7 +50,7 @@ func (o OSCollector) GetLabels(prefix string) (map[string]string, error) {
 	}
 	labels := map[string]string{
 		fmt.Sprintf("%s.%s", prefix, "docker_version"):       o.getDockerVersion(o.InfoData, false)["dockerVersion"],
-		fmt.Sprintf("%s.%s", prefix, "linux_kernel_version"): utils.SemverTrunk(osData["kernelVersion"], 2),
+		fmt.Sprintf("%s.%s%s", prefix, getOSName(), "_kernel_version"): utils.SemverTrunk(osData["kernelVersion"], 2),
 	}
 	return labels, nil
 }
