@@ -58,13 +58,17 @@ func StartUp() {
 		}
 		break
 	}
+	var rancherClient *rclient.RancherClient
 	for {
-		rancherClient, err := util.GetRancherClient()
-		if err != nil {
-			logrus.Errorf("Failed to get rancher client for host-api startup: %v", err)
-			time.Sleep(time.Duration(5) * time.Second)
-			continue
+		var err error
+		rancherClient, err = util.GetRancherClient()
+		if err == nil {
+			break
 		}
+		logrus.Errorf("Failed to get rancher client for host-api startup: %v", err)
+		time.Sleep(time.Duration(5) * time.Second)
+	}
+	for {
 		tokenRequest := &rclient.HostApiProxyToken{
 			ReportedUuid: config.Config.HostUUID,
 		}
