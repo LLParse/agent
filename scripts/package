@@ -12,12 +12,12 @@ rm -rf dist/artifacts
 mkdir -p build/${CONTENT}/bin
 mkdir -p dist/artifacts
 
-if [ ! -e bin/agent ]; then
+if [ ! -e bin/linux/amd64/agent ]; then
     ./scripts/build
 fi
 
 cp -rf apply.sh build/${CONTENT}
-cp -rf bin/agent build/${CONTENT}/bin
+cp -rf bin/linux/amd64/agent build/${CONTENT}/bin
 
 cd build
 
