@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/rancher/agent/cloudprovider/aws"
 	"github.com/rancher/agent/events"
 	"github.com/rancher/agent/register"
+	"github.com/rancher/go-rancher-metadata/metadata"
+	// "github.com/llparse/per-host-subnet/hostnat"
+	"github.com/llparse/per-host-subnet/routeupdate"
+	"github.com/llparse/per-host-subnet/setting"
 )
 
 var (
@@ -48,6 +53,8 @@ func main() {
 
 	logrus.Info("Launching agent")
 
+	// go updateHostRouting()
+
 	url := os.Getenv("CATTLE_URL")
 	accessKey := os.Getenv("CATTLE_ACCESS_KEY")
 	secretKey := os.Getenv("CATTLE_SECRET_KEY")
@@ -60,5 +67,28 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Exiting. Error: %v", err)
 		register.NotifyShutdown(err)
+	}
+}
+
+func updateHostRouting() {
+	var client metadata.Client
+	var err error
+
+	for {
+		client, err = metadata.NewClientAndWait(fmt.Sprintf(setting.MetadataURL, setting.DefaultMetadataAddress))
+		if err == nil {
+			break
+		}
+		logrus.Warn(err)
+		time.Sleep(30 * time.Second)
+	}
+
+	for {
+		_, err = routeupdate.Run(setting.DefaultRouteUpdateProvider, client)
+		if err == nil {
+			break
+		}
+		logrus.Warn(err)
+		time.Sleep(30 * time.Second)
 	}
 }
